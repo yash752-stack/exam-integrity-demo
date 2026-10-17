@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exam-hall integrity demo</title>
+<meta name="description" content="Live demo of an unsupervised malpractice detector for exam-hall CCTV, by Yash Chaudhary.">
+<meta property="og:title" content="Exam-hall integrity demo">
+<meta property="og:description" content="Catching exam malpractice on CCTV without training on cheating.">
+<meta property="og:image" content="media/poster.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #181818;     /* the review tool's own chrome */
+    --panel: #202020;
+    --rule: #333333;
+    --ink: #f2f2f2;
+    --ink-2: #b4b4b4;
+    --ink-3: #8a8a8a;
+    --green: #50c850;     /* skeleton */
+    --red: #e62828;       /* flag */
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--black); color: var(--ink);
+    font: 400 17px/1.6 Barlow, "Segoe UI", Arial, sans-serif;
+  }
+  a { color: var(--ink); text-decoration-color: var(--ink-3); text-underline-offset: 3px; }
+  a:hover { text-decoration-color: var(--ink); }
+  a:focus-visible, video:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+  .text { max-width: 680px; }
+  header { padding: 56px 0 28px; }
+  h1, h2 { font-family: "Barlow Semi Condensed", Barlow, sans-serif; font-weight: 600; letter-spacing: -.01em; margin: 0; }
+  h1 { font-size: clamp(34px, 5.2vw, 56px); line-height: 1.04; max-width: 15ch; }
+  h2 { font-size: 27px; line-height: 1.2; margin: 0 0 14px; }
+  .lead { font-size: 20px; line-height: 1.5; color: var(--ink-2); margin: 22px 0 0; max-width: 34em; }
+  .byline { color: var(--ink-3); margin: 18px 0 0; font-size: 15px; }
+  figure { margin: 0; }
+  .demo { border-top: 4px solid var(--red); background: #000; }
+  .demo video { display: block; width: 100%; height: auto; aspect-ratio: 1208 / 746; background: #000; }
+  figcaption { color: var(--ink-3); font-size: 15px; line-height: 1.5; padding: 12px 0 0; max-width: 46em; }
+  section { padding: 56px 0 0; }
+  .session { background: var(--black); border: 1px solid var(--rule); }
+  .session img { display: block; width: 100%; height: auto; }
+  ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 0; display: grid; gap: 0; border-top: 1px solid var(--rule); }
+  ol.steps li { counter-increment: s; display: grid; grid-template-columns: 52px 1fr; gap: 0 14px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
+  ol.steps li::before { content: counter(s); font-family: "Barlow Semi Condensed", sans-serif; font-weight: 600; font-size: 22px; color: var(--green); line-height: 1.3; }
+  ol.steps b { font-weight: 500; color: var(--ink); }
+  ol.steps p { margin: 2px 0 0; color: var(--ink-2); }
+  table { border-collapse: collapse; width: 100%; max-width: 760px; font-size: 16px; }
+  th, td { text-align: left; padding: 11px 16px 11px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-weight: 500; color: var(--ink-3); font-size: 14px; }
+  td.n { font-family: "Barlow Semi Condensed", sans-serif; font-weight: 600; font-size: 21px; white-space: nowrap; color: var(--ink); }
+  td { color: var(--ink-2); }
+  p { margin: 0 0 14px; }
+  .muted { color: var(--ink-2); }
+  footer { margin: 72px 0 0; padding: 22px 0 40px; border-top: 1px solid var(--rule); color: var(--ink-3); font-size: 15px; }
+  footer a { color: var(--ink-2); }
+  @media (max-width: 560px) {
+    header { padding-top: 36px; }
+    .lead { font-size: 18px; }
+    ol.steps li { grid-template-columns: 34px 1fr; }
+    th, td { padding-right: 10px; }
+  }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <h1>Catching exam malpractice on CCTV, without ever training on cheating</h1>
+  <p class="lead">Nobody has labelled examples of cheating in exam-hall footage. So this system learns what is normal for each room, and flags the movement that isn't.</p>
+  <p class="byline">Built by <a href="https://github.com/yash752-stack">Yash Chaudhary</a>, 2026</p>
+</header>
+
+<div class="wrap">
+  <figure>
+    <div class="demo">
+      <video id="clip" src="media/catch.mp4" poster="media/poster.jpg" autoplay muted loop playsinline preload="auto"
+             aria-label="A candidate stands up and leans over a neighbour's desk; the system draws a red skeleton and box labelled suspicious movement, and a close-up follows them."></video>
+    </div>
+    <figcaption>Real exam footage in privacy mode: the whole frame is pixelated so no candidate can be identified. The skeletons, the red box and the close-up are the system's actual output. The candidate leaves their seat and leans over to a neighbour's desk for about ten seconds.</figcaption>
+  </figure>
+
+  <section aria-labelledby="h-session">
+    <h2 id="h-session">One real session</h2>
+    <p class="text muted">89 minutes, about 40 candidates. Each tick is a moment the maths raised. The six ringed moments were later confirmed as malpractice by a person watching the clips.</p>
+    <figure class="session">
+      <img src="media/session.svg" width="1200" height="300" alt="Timeline of the 89-minute session with 56 raised moments; six are ringed as confirmed: 11:37 turns to a neighbour, 11:41 stands and leans over the desk in front, 11:55 and 12:08 stands again, 12:10 leans over a neighbour, 12:22 stands up again.">
+    </figure>
+  </section>
+
+  <section aria-labelledby="h-how">
+    <h2 id="h-how">How a catch happens</h2>
+    <ol class="steps">
+      <li><div><b>Find every person.</b><p>YOLO11x-pose puts a 17-point skeleton on each candidate, three times a second.</p></div></li>
+      <li><div><b>Follow them.</b><p>ByteTrack, tuned for small, faint people in the back rows, keeps one identity per candidate.</p></div></li>
+      <li><div><b>Score what is rare.</b><p>For each person, a Fisher score compares 45-second windows of their movement against the rest of the room, and a separate detector catches standing up.</p></div></li>
+      <li><div><b>Remove the obvious false alarms.</b><p>Invigilators walking past, people hidden behind others, and tracking glitches are filtered out.</p></div></li>
+      <li><div><b>Hand a short list to a person.</b><p>Each alert is a few seconds of video. A reviewer confirms or dismisses it.</p></div></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="h-results">
+    <h2 id="h-results">Results, including the misses</h2>
+    <table>
+      <thead><tr><th scope="col">Result</th><th scope="col">What it means</th></tr></thead>
+      <tbody>
+        <tr><td class="n">7 of 14</td><td>confirmed malpractice moments found, on a frozen benchmark with a room held out from all tuning</td></tr>
+        <tr><td class="n">~1</td><td>alert per candidate per hour: a 90-minute room of 40 becomes about 60 short clips</td></tr>
+        <tr><td class="n">~1 in 3</td><td>alerts that a reviewer confirms; most of the rest are normal movement, dismissed in seconds</td></tr>
+        <tr><td class="n">65 of 67</td><td>seat detections confirmed as real people by a vision-language model (Qwen3-VL-8B); logos and empty desks dropped</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section aria-labelledby="h-not">
+    <h2 id="h-not">What did not work</h2>
+    <div class="text">
+      <p class="muted">Running a second pose model on every seat (RTMPose-x) raised the number of people seen per frame from 13 to 24. It found no extra malpractice. Seat crops freeze the very movements worth flagging, so a person standing up stays squashed inside their seat box. Production kept the simpler pipeline.</p>
+      <p class="muted">The misses are mostly small head turns and leaning in the back rows, where people are a few pixels tall.</p>
+    </div>
+  </section>
+</div>
+
+<footer class="wrap">
+  <p>The source code is private because the footage belongs to the exam body. Happy to walk through it: <a href="https://github.com/yash752-stack">GitHub</a>, <a href="https://linkedin.com/in/yash-chaudhary">LinkedIn</a>.</p>
+</footer>
+
+<script>
+  // Respect reduced motion: no autoplay, show controls instead.
+  try {
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      var v = document.getElementById('clip'); v.removeAttribute('autoplay'); v.pause(); v.controls = true;
+    }
+  } catch (e) {}
+</script>
+</body>
+</html>
