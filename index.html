@@ -3,134 +3,141 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Exam-hall integrity demo</title>
-<meta name="description" content="Live demo of an unsupervised malpractice detector for exam-hall CCTV, by Yash Chaudhary.">
-<meta property="og:title" content="Exam-hall integrity demo">
-<meta property="og:description" content="Catching exam malpractice on CCTV without training on cheating.">
+<title>Exam-Hall Integrity AI | Yash Chaudhary</title>
+<meta name="description" content="Unsupervised malpractice detection on exam-hall CCTV with YOLO11x-pose, ByteTrack, per-room rarity scoring and VLM verification. By Yash Chaudhary.">
+<meta property="og:title" content="Exam-Hall Integrity AI">
+<meta property="og:description" content="Unsupervised malpractice detection on exam-hall CCTV, shown on real output.">
 <meta property="og:image" content="media/poster.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --black: #181818;     /* the review tool's own chrome */
-    --panel: #202020;
-    --rule: #333333;
-    --ink: #f2f2f2;
-    --ink-2: #b4b4b4;
-    --ink-3: #8a8a8a;
-    --green: #50c850;     /* skeleton */
-    --red: #e62828;       /* flag */
-  }
-  * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body {
-    margin: 0; background: var(--black); color: var(--ink);
-    font: 400 17px/1.6 Barlow, "Segoe UI", Arial, sans-serif;
-  }
-  a { color: var(--ink); text-decoration-color: var(--ink-3); text-underline-offset: 3px; }
-  a:hover { text-decoration-color: var(--ink); }
-  a:focus-visible, video:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
-  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
-  .text { max-width: 680px; }
-  header { padding: 56px 0 28px; }
-  h1, h2 { font-family: "Barlow Semi Condensed", Barlow, sans-serif; font-weight: 600; letter-spacing: -.01em; margin: 0; }
-  h1 { font-size: clamp(34px, 5.2vw, 56px); line-height: 1.04; max-width: 15ch; }
-  h2 { font-size: 27px; line-height: 1.2; margin: 0 0 14px; }
-  .lead { font-size: 20px; line-height: 1.5; color: var(--ink-2); margin: 22px 0 0; max-width: 34em; }
-  .byline { color: var(--ink-3); margin: 18px 0 0; font-size: 15px; }
-  figure { margin: 0; }
-  .demo { border-top: 4px solid var(--red); background: #000; }
-  .demo video { display: block; width: 100%; height: auto; aspect-ratio: 1208 / 746; background: #000; }
-  figcaption { color: var(--ink-3); font-size: 15px; line-height: 1.5; padding: 12px 0 0; max-width: 46em; }
-  section { padding: 56px 0 0; }
-  .session { background: var(--black); border: 1px solid var(--rule); }
+:root {
+  --bg: #fbfaf7; --ink: #1c1c1a; --ink-2: #57554f; --ink-3: #8a877f;
+  --rule: #dfdcd4; --link: #1f3a68; --mark: #9b2c2c; --code: #f2f0ea;
+  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 18px/1.62 var(--serif); }
+a { color: var(--link); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: #a9b6cc; }
+a:hover { text-decoration-color: var(--link); }
+:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+
+.col { max-width: 700px; margin: 0 auto; padding: 0 20px; }
+.wide { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+
+header { padding: 64px 0 8px; }
+h1 { font-size: clamp(32px, 5vw, 42px); font-weight: 600; line-height: 1.12; letter-spacing: -.01em; margin: 0; }
+.byline { color: var(--ink-2); font-size: 16px; margin: 12px 0 0; }
+.lead { font-size: 20px; line-height: 1.55; margin: 26px 0 0; }
+
+h2 { font-size: 23px; font-weight: 600; margin: 52px 0 12px; }
+p { margin: 0 0 16px; }
+.muted { color: var(--ink-2); }
+
+figure { margin: 34px auto 8px; }
+figcaption { color: var(--ink-2); font-size: 15.5px; line-height: 1.5; margin-top: 10px; max-width: 700px; }
+figcaption b { color: var(--ink); font-weight: 600; }
+
+pre { font: 400 13.5px/1.65 var(--mono); background: var(--code); border-left: 2px solid var(--rule); padding: 16px 18px; overflow-x: auto; margin: 6px 0 18px; color: #2b2a27; }
+
+table { border-collapse: collapse; width: 100%; font-size: 16px; margin: 6px 0 14px; font-variant-numeric: tabular-nums lining-nums; }
+th { text-align: left; font-weight: 600; padding: 0 16px 8px 0; border-bottom: 1.5px solid var(--ink); }
+td { padding: 9px 16px 9px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+td.n { white-space: nowrap; font-weight: 600; }
+.scroll { overflow-x: auto; }
+
+dl.dec dt { font-weight: 600; margin-top: 14px; }
+dl.dec dd { margin: 2px 0 0; color: var(--ink-2); }
+
+footer { max-width: 700px; margin: 72px auto 0; padding: 18px 20px 48px; color: var(--ink-3); font-size: 15px; }
+footer .r { border-top: 1px solid var(--rule); padding-top: 18px; }
+footer a { color: var(--ink-2); }
+
+@media (min-width: 900px) { pre { margin-left: -70px; margin-right: -70px; } }
+@media (max-width: 560px) {
+  body { font-size: 17px; }
+  header { padding-top: 40px; }
+  .lead { font-size: 18px; }
+  pre { font-size: 12px; padding: 12px; }
+  table { font-size: 15px; }
+}
+
+  .video { background: #000; }
+  .video video { display: block; width: 100%; height: auto; aspect-ratio: 1208 / 746; }
   .session img { display: block; width: 100%; height: auto; }
-  ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 0; display: grid; gap: 0; border-top: 1px solid var(--rule); }
-  ol.steps li { counter-increment: s; display: grid; grid-template-columns: 52px 1fr; gap: 0 14px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
-  ol.steps li::before { content: counter(s); font-family: "Barlow Semi Condensed", sans-serif; font-weight: 600; font-size: 22px; color: var(--green); line-height: 1.3; }
-  ol.steps b { font-weight: 500; color: var(--ink); }
-  ol.steps p { margin: 2px 0 0; color: var(--ink-2); }
-  table { border-collapse: collapse; width: 100%; max-width: 760px; font-size: 16px; }
-  th, td { text-align: left; padding: 11px 16px 11px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
-  th { font-weight: 500; color: var(--ink-3); font-size: 14px; }
-  td.n { font-family: "Barlow Semi Condensed", sans-serif; font-weight: 600; font-size: 21px; white-space: nowrap; color: var(--ink); }
-  td { color: var(--ink-2); }
-  p { margin: 0 0 14px; }
-  .muted { color: var(--ink-2); }
-  footer { margin: 72px 0 0; padding: 22px 0 40px; border-top: 1px solid var(--rule); color: var(--ink-3); font-size: 15px; }
-  footer a { color: var(--ink-2); }
-  @media (max-width: 560px) {
-    header { padding-top: 36px; }
-    .lead { font-size: 18px; }
-    ol.steps li { grid-template-columns: 34px 1fr; }
-    th, td { padding-right: 10px; }
-  }
 </style>
 </head>
 <body>
-<header class="wrap">
-  <h1>Catching exam malpractice on CCTV, without ever training on cheating</h1>
-  <p class="lead">Nobody has labelled examples of cheating in exam-hall footage. So this system learns what is normal for each room, and flags the movement that isn't.</p>
-  <p class="byline">Built by <a href="https://github.com/yash752-stack">Yash Chaudhary</a>, 2026</p>
+
+<header class="col">
+  <h1>Exam-Hall Integrity AI</h1>
+  <p class="byline">Yash Chaudhary, 2026 · <a href="https://github.com/yash752-stack">GitHub</a> · <a href="https://linkedin.com/in/yash-chaudhary">LinkedIn</a></p>
+  <p class="lead">An unsupervised detector for malpractice in exam-hall CCTV. Labelled footage of cheating does not exist at any useful scale, so the system learns what ordinary movement looks like in each room and raises the movement that is rare. A reviewer then checks a short list of clips instead of hours of video.</p>
 </header>
 
-<div class="wrap">
-  <figure>
-    <div class="demo">
-      <video id="clip" src="media/catch.mp4" poster="media/poster.jpg" autoplay muted loop playsinline preload="auto"
-             aria-label="A candidate stands up and leans over a neighbour's desk; the system draws a red skeleton and box labelled suspicious movement, and a close-up follows them."></video>
-    </div>
-    <figcaption>Real exam footage in privacy mode: the whole frame is pixelated so no candidate can be identified. The skeletons, the red box and the close-up are the system's actual output. The candidate leaves their seat and leans over to a neighbour's desk for about ten seconds.</figcaption>
-  </figure>
+<figure class="wide">
+  <div class="video">
+    <video id="clip" src="media/catch.mp4" poster="media/poster.jpg" autoplay muted loop playsinline preload="auto"
+           aria-label="A candidate stands up and leans over a neighbour's desk; the system draws a red skeleton and box labelled suspicious movement, and a close-up follows them."></video>
+  </div>
+  <figcaption><b>Figure 1.</b> Raw system output on real exam footage, pixelated so no one can be identified. Left: every candidate tracked with a pose skeleton. Right: a close-up of the flagged candidate, who leaves their seat and leans over a neighbour's desk for about ten seconds. Nobody labelled this moment in advance.</figcaption>
+</figure>
 
-  <section aria-labelledby="h-session">
-    <h2 id="h-session">One real session</h2>
-    <p class="text muted">89 minutes, about 40 candidates. Each tick is a moment the maths raised. The six ringed moments were later confirmed as malpractice by a person watching the clips.</p>
-    <figure class="session">
-      <img src="media/session.svg" width="1200" height="300" alt="Timeline of the 89-minute session with 56 raised moments; six are ringed as confirmed: 11:37 turns to a neighbour, 11:41 stands and leans over the desk in front, 11:55 and 12:08 stands again, 12:10 leans over a neighbour, 12:22 stands up again.">
-    </figure>
-  </section>
+<main>
+<div class="col">
+  <h2>Method</h2>
+  <p>Each stage is a standard component chosen for this footage: steep camera angles, forty people per room, and back-row candidates only a few pixels tall.</p>
+<pre>CCTV frames, 3 fps
+  → YOLO11x-pose          17-keypoint skeleton for every person
+  → ByteTrack             one identity per candidate, tuned for small, faint people
+  → rarity scoring        Fisher score of each person's 45 s movement windows
+                          against the rest of the room, plus a stand-up detector
+  → filters               invigilators, occlusion, track glitches; thresholds frozen
+  → Qwen3-VL-8B (4-bit)   verifies that each seat detection is a real person
+  → reviewer              confirms or dismisses each short clip</pre>
 
-  <section aria-labelledby="h-how">
-    <h2 id="h-how">How a catch happens</h2>
-    <ol class="steps">
-      <li><div><b>Find every person.</b><p>YOLO11x-pose puts a 17-point skeleton on each candidate, three times a second.</p></div></li>
-      <li><div><b>Follow them.</b><p>ByteTrack, tuned for small, faint people in the back rows, keeps one identity per candidate.</p></div></li>
-      <li><div><b>Score what is rare.</b><p>For each person, a Fisher score compares 45-second windows of their movement against the rest of the room, and a separate detector catches standing up.</p></div></li>
-      <li><div><b>Remove the obvious false alarms.</b><p>Invigilators walking past, people hidden behind others, and tracking glitches are filtered out.</p></div></li>
-      <li><div><b>Hand a short list to a person.</b><p>Each alert is a few seconds of video. A reviewer confirms or dismisses it.</p></div></li>
-    </ol>
-  </section>
-
-  <section aria-labelledby="h-results">
-    <h2 id="h-results">Results, including the misses</h2>
-    <table>
-      <thead><tr><th scope="col">Result</th><th scope="col">What it means</th></tr></thead>
-      <tbody>
-        <tr><td class="n">7 of 14</td><td>confirmed malpractice moments found, on a frozen benchmark with a room held out from all tuning</td></tr>
-        <tr><td class="n">~1</td><td>alert per candidate per hour: a 90-minute room of 40 becomes about 60 short clips</td></tr>
-        <tr><td class="n">~1 in 3</td><td>alerts that a reviewer confirms; most of the rest are normal movement, dismissed in seconds</td></tr>
-        <tr><td class="n">65 of 67</td><td>seat detections confirmed as real people by a vision-language model (Qwen3-VL-8B); logos and empty desks dropped</td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <section aria-labelledby="h-not">
-    <h2 id="h-not">What did not work</h2>
-    <div class="text">
-      <p class="muted">Running a second pose model on every seat (RTMPose-x) raised the number of people seen per frame from 13 to 24. It found no extra malpractice. Seat crops freeze the very movements worth flagging, so a person standing up stays squashed inside their seat box. Production kept the simpler pipeline.</p>
-      <p class="muted">The misses are mostly small head turns and leaning in the back rows, where people are a few pixels tall.</p>
-    </div>
-  </section>
+  <h2>Results</h2>
+  <p>All figures are on a frozen benchmark: thresholds were fixed before scoring, and one room was held out from every tuning decision.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Measure</th><th>Result</th><th>Setup</th></tr></thead>
+    <tbody>
+      <tr><td>Confirmed events found</td><td class="n">7 of 14</td><td>Room 2 and S1, frozen thresholds</td></tr>
+      <tr><td>Alert rate</td><td class="n">~1 per person-hour</td><td>a 90-minute, 40-candidate room becomes about 60 short clips</td></tr>
+      <tr><td>Alerts confirmed on review</td><td class="n">~1 in 3</td><td>most of the rest are ordinary movement, dismissed in seconds</td></tr>
+      <tr><td>Seat detections verified</td><td class="n">65 of 67</td><td>Qwen3-VL-8B, 4-bit; logos and empty desks removed</td></tr>
+    </tbody>
+  </table></div>
 </div>
 
-<footer class="wrap">
-  <p>The source code is private because the footage belongs to the exam body. Happy to walk through it: <a href="https://github.com/yash752-stack">GitHub</a>, <a href="https://linkedin.com/in/yash-chaudhary">LinkedIn</a>. Also see the <a href="https://yash752-stack.github.io/call-analytics-demo/">call analytics demo</a>.</p>
-</footer>
+<figure class="wide session">
+  <img src="media/session.svg" width="1200" height="300" alt="Timeline of the 89-minute session with 56 raised moments; six are ringed as confirmed: 11:37 turns to a neighbour, 11:41 stands and leans over the desk in front, 11:55 and 12:08 stands again, 12:10 leans over a neighbour, 12:22 stands up again.">
+  <figcaption><b>Figure 2.</b> One full session, 89 minutes with about 40 candidates. Each tick is a moment the system raised; the six ringed were confirmed as malpractice by a person watching the clips.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Decisions</h2>
+  <dl class="dec">
+    <dt>Rarity scoring instead of a supervised classifier.</dt>
+    <dd>There is no labelled malpractice footage at scale, and ordinary movement differs by room, camera angle and seating, so each room is scored against itself.</dd>
+    <dt>No second pose model on seat crops.</dt>
+    <dd>Running RTMPose-x on every seat raised the people seen per frame from 13 to 24 and found no additional malpractice. Seat crops freeze exactly the movements worth flagging: a person standing up stays squashed inside their seat box. The simpler pipeline stayed.</dd>
+    <dt>The vision-language model verifies; it does not decide.</dt>
+    <dd>Qwen3-VL confirms that a seat holds a real person. Whether someone is a seated candidate is decided by their trajectory, so a single model answer cannot override the geometry.</dd>
+    <dt>A person makes the final call.</dt>
+    <dd>At roughly one confirmed alert in three, review takes seconds per clip. Keeping a human in the loop lets the detector favour recall over precision.</dd>
+  </dl>
+
+  <h2>Limits</h2>
+  <p>Most misses are small head turns and leaning in the back rows, where a person is only a few pixels tall. The code and footage are private because the recordings belong to the exam body; I am glad to walk through the implementation.</p>
+</div>
+</main>
+
+<footer><div class="r">See also: <a href="https://yash752-stack.github.io/call-analytics-demo/">Call-Centre Speech Analytics</a></div></footer>
 
 <script>
-  // Respect reduced motion: no autoplay, show controls instead.
   try {
     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
       var v = document.getElementById('clip'); v.removeAttribute('autoplay'); v.pause(); v.controls = true;
